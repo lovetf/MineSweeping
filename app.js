@@ -1,20 +1,30 @@
 var board = document.getElementById('board');
 var ctx = board.getContext('2d');
-board.onmousedown = clickMine;
 
 var mines = [];
 var colors = ["green", "blue", "red", "yellow", "magenta", "orange", "brown", "purple", "pink"];
 var width = 30, height = 16, mineNum = 99;
 var length = 50;
 
-board.width = width*length;
-board.height = height*length;
+var _imgs = [];
+var _mine = new Image(length, length);
+_mine.src = 'image/mine.gif';
+for(var i = 0; i < 9; i++)
+{
+    _imgs.push(new Image(length, length));
+    _imgs[i].src = 'image/'+i.toString()+'.gif';
+}
+
+board.onmousedown = clickMine;
+board.onmousemove = moveMine;
+
 function Mine(x, y, color, data){
     this.x = x;
     this.y = y;
     this.color = color;
     this.data = data;
     this.isShow = false;
+    this.isHang = false;
 }
 
 function boardobj(){
@@ -34,8 +44,12 @@ function randomFromTo(from, to) {
 
 function initialize(width, height, number)
 {
+
+    board.width = width*length;
+    board.height = height*length;
     theboard.width = width;
     theboard.height = height;
+    mines = [];
 
     for(var i = 0; i < width; i++)
     {
@@ -85,7 +99,10 @@ function initialize(width, height, number)
 function gameover()
 {
     for(var i = mines.length - 1; i >=0 ; i--)
+    {
+        if(mines[i].data >= 0) continue;
         mines[i].isShow = true;
+    }
 }
 
 function clickMine(e)
@@ -96,6 +113,16 @@ function clickMine(e)
     mines[id].isShow = true;
     if(mines[id].data == 0) neighbor(id)
     else if(mines[id].data == -1)   gameover();
+    drawMines();
+}
+
+function moveMine(e)
+{
+    var w = parseInt((e.clientX - board.offsetLeft)/length);
+    var h = parseInt((e.clientY - board.offsetTop)/length);
+    var id = theboard.toId(w, h);
+    for(var i = mines.length - 1; i >=0 ; i--)  mines[i].isHang = false;
+    mines[id].isHang = true;
     drawMines();
 }
 
@@ -135,20 +162,28 @@ function drawMines()
     ctx.clearRect(0, 0, board.width, board.height);
     for(var i = mines.length - 1; i >=0 ; i--)
     {
+        ctx.fillStyle = '#222';
         if(mines[i].isShow != false)
         {
-            ctx.font = "10px Verdana"
-            ctx.textBaseline = "ideographic"
-            ctx.textAlign = 'start'
-            ctx.fillText(mines[i].data, (mines[i].x)*length+5, (mines[i].y)*length+20);
+            if(mines[i].data >= 0)  ctx.drawImage(_imgs[mines[i].data], mines[i].x*length, mines[i].y*length, length-1, length-1);
+            else    ctx.drawImage(_mine, mines[i].x*length, mines[i].y*length, length-1, length-1);
+            ctx.stroke();
         }
         else
         {
+            if(mines[i].isHang == true)    ctx.fillStyle = '#333';
             ctx.fillRect(mines[i].x*length, mines[i].y*length, length-1, length-1);
+            ctx.stroke();
         }
-        ctx.stroke();
     }
 }
 
 initialize(width, height, mineNum);
 drawMines();
+
+var start = document.getElementById('start');
+start.onmousedown = function(e)
+{
+    initialize(width, height, mineNum);
+    drawMines();
+}
