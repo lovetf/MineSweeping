@@ -3,12 +3,13 @@ var ctx = board.getContext('2d');
 
 var mines = [];
 var colors = ["green", "blue", "red", "yellow", "magenta", "orange", "brown", "purple", "pink"];
-var width = 30, height = 16, mineNum = 99;
+var width = 10, height = 10, mineNum = 9;
 var length = 50;
 
-var _imgs = [];
 var _mine = new Image(length, length);
 _mine.src = 'image/mine.gif';
+
+var _imgs = [];
 for(var i = 0; i < 9; i++)
 {
     _imgs.push(new Image(length, length));
@@ -96,7 +97,7 @@ function initialize(width, height, number)
     }
 }
 
-function gameover()
+function gameOver()
 {
     for(var i = mines.length - 1; i >=0 ; i--)
     {
@@ -112,7 +113,7 @@ function clickMine(e)
     var id = theboard.toId(w, h);
     mines[id].isShow = true;
     if(mines[id].data == 0) neighbor(id)
-    else if(mines[id].data == -1)   gameover();
+    else if(mines[id].data == -1)   gameOver();
     drawMines();
 }
 
@@ -178,12 +179,35 @@ function drawMines()
     }
 }
 
-initialize(width, height, mineNum);
-drawMines();
-
-var start = document.getElementById('start');
-start.onmousedown = function(e)
+function startGame()
 {
     initialize(width, height, mineNum);
     drawMines();
+}
+
+var start = document.getElementById('start');
+var single = document.getElementById('single');
+var multi = document.getElementById('multi');
+
+start.onmousedown = startGame;
+single.onmousedown = function(e){
+    var singles = document.getElementsByClassName('single');
+    for(var i = 0; i < singles.length; i++)
+        singles[i].style.display = 'block';
+    startGame();
+}
+
+
+multi.onmousedown = function(e){
+    var ws = new WebSocket("ws://localhost:2000");
+    ws.onopen = function(){
+        console.log("握手成功");
+        ws.send("Hel-------------lo");
+    };
+    ws.onmessage = function(e){
+        console.log("message:" + e.data);
+    };
+    ws.onerror = function(){
+        console.log("error");
+    };
 }

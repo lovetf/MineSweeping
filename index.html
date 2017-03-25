@@ -4,8 +4,19 @@
     </head>
     <body>
         <h1>扫雷 <small>MineSweep</small></h1>
-        <div class="header"><button id="start">Start</button></div>
-        <canvas id="board"></canvas>
+        <main>
+            <div class="menu">
+                <button id="single">Single</button>
+                <button id="multi">Multiplayer</button>
+            </div>
+            <div class="single" id="single_block" hidden>
+                <div class="header"><button id="start">Start</button></div>
+                <canvas id="board"></canvas>
+            </div>
+            <div class="multi" id="multi_block" hidden>
+                <div class="header"><button id="start">Start</button></div>
+            </div>
+        </main>
         <script src="app.js"></script>
     </body>
 </html>
